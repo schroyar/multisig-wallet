@@ -7,11 +7,12 @@ import "hardhat/console.sol";
 
 contract MultiSig {
 
- event Deposit(address indexed sender, uint amount);
+    /* ========== Events ========== */
     event Submit(uint indexed txId);
     event Approve(address indexed owner, uint indexed txId);
     event Revoke(address indexed owner, uint indexed txId);
     event Execute(uint indexed txId);
+    event Deposit(address indexed sender, uint amount);
 
     struct Transaction {
         address to;
@@ -28,6 +29,7 @@ contract MultiSig {
     // mapping from tx id => owner => bool
     mapping(uint => mapping(address => bool)) public approved;
 
+    /* ========== Modifiers ========== */
     modifier onlyOwner() {
         require(isOwner[msg.sender], "not owner");
         _;
@@ -68,7 +70,7 @@ contract MultiSig {
         required = _required;
     }
     
-    // Subtmit new transaction 
+    /* ========== SUBMIT NEW TRANSACTION ========== */
     function submit(
         address _to,
         uint _value,
@@ -95,8 +97,8 @@ contract MultiSig {
         approved[_txId][msg.sender] = true;
         emit Approve(msg.sender, _txId);
     }
-    
-    // Check how many people of the multi-sig have already approved the transaction
+        
+        /* ========== Check how many people of the multi-sig have already approved the transaction ========== */
     function _getApprovalCount(uint _txId) private view returns(uint count) {
         for(uint i = 0; i < owners.length; ++i) {
             if (approved[_txId][owners[i]]) {
@@ -136,7 +138,7 @@ contract MultiSig {
       return owners;
     }
     
-    // Support receiving ETH by default and emit event Deposit
+    /* ========== Support receiving ETH by default and emit event Deposit ========== */
     receive() external payable {
         emit Deposit(msg.sender, msg.value);
     }
